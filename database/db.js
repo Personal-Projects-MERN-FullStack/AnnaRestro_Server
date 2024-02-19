@@ -1,7 +1,7 @@
 const mongoose  = require("mongoose");
 
-// const mongoURI ="mongodb+srv://vibeuser1:vaibhav@cluster0.9qofxzb.mongodb.net/vibebackend?retryWrites=true&w=majority";
-const mongoURI = "mongodb://localhost:27017/annaRestro";
+const mongoURI ="mongodb+srv://mohanalkarvaibhav:wc2oINT9F9fNiV1T@cluster0.ogti7se.mongodb.net/annaRestro";
+// const mongoURI = "mongodb://localhost:27017/annaRestro";
 
 mongoose.set("strictQuery",true);
 
