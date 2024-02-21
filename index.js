@@ -10,14 +10,14 @@ const wss = new WebSocket.Server({ server });
 
 // Importing the Routes
 const authroutes = require("./routes/auth");
-
+const menuroutes = require("./routes/menu")
 // creating the use cases
 app.use(cors());
 app.use(bodyparser.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use("/auth", authroutes);
-
+app.use("/menu", menuroutes)
 
 app.get("/", (req, res) => {
   res.send("Hello world");
