@@ -31,7 +31,7 @@ router.post("/Register", async (req, res) => {
     res.json({
       status: true,
       authtoken,
-      user: { name: user.username, email: user, email },
+      user: { name: user.username, email: user, email ,id : user,id},
     });
   } catch (error) {
     console.error(error.message);
@@ -76,7 +76,7 @@ router.post(
       res.json({
         success,
         authtoken,
-        user: { name: user.name, email: user, email },
+        user: { name: user.name, email: user, email ,id:user.id},
       });
     } catch (error) {}
   }

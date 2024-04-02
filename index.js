@@ -12,6 +12,7 @@ const wss = new WebSocket.Server({ server });
 const authroutes = require("./routes/auth");
 const menuroutes = require("./routes/menu")
 const orderroutes = require("./routes/orders")
+const walletroutes = require("./routes/wallet")
 // creating the use cases
 app.use(cors());
 app.use(bodyparser.urlencoded({ extended: false }));
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/auth", authroutes);
 app.use("/menu", menuroutes)
 app.use("/orders", orderroutes)
+app.use("/wallet", walletroutes)
 
 app.get("/", (req, res) => {
   res.send("Hello world");
