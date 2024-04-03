@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 const express = require("express");
+=======
+const express = require('express');
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
 const router = express.Router();
 const User = require("../models/Users");
 
 // Add money to wallet
+<<<<<<< HEAD
 router.post("/addmoney/:userId", async (req, res) => {
+=======
+router.post('/addmoney/:userId', async (req, res) => {
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
   try {
     const userId = req.params.userId;
     const amount = req.body.amount;
@@ -26,7 +34,11 @@ router.post("/addmoney/:userId", async (req, res) => {
 });
 
 // Activate wallet and set PIN
+<<<<<<< HEAD
 router.put("/activate/:userId", async (req, res) => {
+=======
+router.put('/activate/:userId', async (req, res) => {
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
   try {
     const userId = req.params.userId;
     const pin = req.body.pin;
@@ -49,6 +61,7 @@ router.put("/activate/:userId", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+<<<<<<< HEAD
 router.get("/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -64,5 +77,25 @@ router.get("/:userId", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+=======
+router.get('/:userId', async (req, res) => {
+    try {
+      const userId = req.params.userId;
+  
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      const walletDetails = user.wallet;
+      res.json(walletDetails);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+
+
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
 
 module.exports = router;

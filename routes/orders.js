@@ -7,6 +7,7 @@ router.post("/place-order", async (req, res) => {
   try {
     const { customer, products, total } = req.body;
 
+<<<<<<< HEAD
     // console.log("Request Body:", req.body);
 
     // Find the user
@@ -14,12 +15,21 @@ router.post("/place-order", async (req, res) => {
 
     // console.log("User:", user);
 
+=======
+    // Find the user
+    // console.log(customer)
+    const user = await User.findById(customer);
+
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     // Check if user has sufficient funds in the wallet
+<<<<<<< HEAD
     console.log("User Wallet Coins Before Deduction:", user.wallet.coins);
+=======
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
     if (user.wallet.coins < total) {
       return res.status(400).json({ message: "Insufficient funds in wallet" });
     }
@@ -28,10 +38,14 @@ router.post("/place-order", async (req, res) => {
     user.wallet.coins -= total;
     await user.save();
 
+<<<<<<< HEAD
     // console.log("User Wallet Coins After Deduction:", user.wallet.coins);
 
     // Create and save the order
 console.log(products)
+=======
+    // Create and save the order
+>>>>>>> daf13adac63466a98364da4a1ad54a12724f2de3
     const newOrder = new Order({ customer, products, total });
     // console.log("New Order:", newOrder);
     const savedOrder = await newOrder.save();
