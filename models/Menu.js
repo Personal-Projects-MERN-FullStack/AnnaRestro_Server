@@ -1,34 +1,38 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Define breakfast product schema
 const breakfastProductSchema = new mongoose.Schema({
   productName: {
     type: String,
-    required: true
+    required: true,
   },
   productQty: {
     type: Number,
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-    required: true
+    required: true,
   },
   imageUrl: {
     type: String,
-    required: true
+    required: true,
   },
   nutrientsItems: {
     type: [String],
-    required: true
+    required: true,
   },
   typeOfMenu: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
 });
 
 // Create breakfast product model
-const BreakfastProduct = mongoose.model('Menu', breakfastProductSchema);
+const BreakfastProduct = mongoose.model("Menu", breakfastProductSchema);
 
 module.exports = BreakfastProduct;
