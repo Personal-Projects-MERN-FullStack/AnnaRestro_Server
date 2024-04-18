@@ -1,74 +1,100 @@
 const express = require("express");
 const router = express.Router();
-const Order = require("../models/Orders"); // Assuming your module is named 'orderModel'
+const Order = require("../models/Orders");
 const User = require("../models/Users");
+const OrderChangeStateLog = require("../models/OrderChangeStateLog");
 
+// Function to create a log entry for order state change
+async function createOrderStateChangeLog(
+  orderId,
+  previousState,
+  newState,
+  userId,
+  changedByAdmin
+) {
+  try {
+    const logEntry = new OrderChangeStateLog({
+      orderId: orderId,
+      previousState: previousState,
+      newState: newState,
+      changedByAdmin: changedByAdmin,
+      timestamp: new Date(),
+    });
+    await logEntry.save();
+  } catch (error) {
+    console.error("Error creating order state change log:", error);
+    throw error; // Throw the error for further handling
+  }
+}
+
+// Route to place an order
 router.post("/place-order", async (req, res) => {
   try {
     const { customer, products, total } = req.body;
-
-    // console.log("Request Body:", req.body);
-
-    // Find the user
     const user = await User.findById(customer);
-
-    // console.log("User:", user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check if user has sufficient funds in the wallet
-    console.log("User Wallet Coins Before Deduction:", user.wallet.coins);
     if (user.wallet.coins < total) {
       return res.status(400).json({ message: "Insufficient funds in wallet" });
     }
 
-    // Deduct the total amount from the user's wallet
     user.wallet.coins -= total;
-    await user.save();
 
-    // console.log("User Wallet Coins After Deduction:", user.wallet.coins);
-
-    // Create and save the order
-console
-    const newOrder = new Order({ customer, products, total });
-    // console.log("New Order:", newOrder);
+    // Create the order with default state "new"
+    const newOrder = new Order({ customer, products, total, status: "new" });
     const savedOrder = await newOrder.save();
 
+    // Log the order state change from default to "new"
+    await createOrderStateChangeLog(savedOrder._id, "new", "new", user._id, " "); 
+    await user.save();
     res.status(201).json(savedOrder);
-  } catch (err) {
-    console.error("Error:", err);
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    console.error("Error placing order:", error);
+    res.status(400).json({ message: error.message });
   }
 });
 
+// Route to update the status of an order
+router.patch("/:orderId/update-status", async (req, res) => {
+  console.log(req.body);
+  try {
+    const orderId = req.params.orderId;
+    const { status, adminid } = req.body;
+
+    const order = await Order.findById(orderId);
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    // Log the order state change
+    await createOrderStateChangeLog(
+      orderId,
+      order.status,
+      status,
+      updatedOrder.customer,
+      adminid
+    );
+
+    res.json(updatedOrder);
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(400).json({ message: error.message });
+  }
+});
 
 // Route to fetch orders by customer id
 router.get("/:customerId", async (req, res) => {
   try {
     const customerId = req.params.customerId;
     const orders = await Order.find({ customer: customerId });
-    // console.log(orders)
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-});
-
-// Route to update the status of an order
-router.patch("/:orderId/update-status", async (req, res) => {
-  try {
-    const orderId = req.params.orderId;
-    const { status } = req.body;
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
-      { status },
-      { new: true }
-    );
-    res.json(updatedOrder);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 });
 
@@ -81,6 +107,8 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// Route to add products to user's basket
 router.post("/:userId/add-to-basket", async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -90,7 +118,7 @@ router.post("/:userId/add-to-basket", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // console.log(products.products)
+
     user.basket = products.products;
     await user.save();
 
@@ -100,6 +128,7 @@ router.post("/:userId/add-to-basket", async (req, res) => {
   }
 });
 
+// Route to get user's basket
 router.get("/:userId/basket", async (req, res) => {
   try {
     const userId = req.params.userId;
