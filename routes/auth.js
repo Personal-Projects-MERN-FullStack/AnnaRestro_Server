@@ -14,7 +14,7 @@ router.post("/Register", async (req, res) => {
     const { username, email, password } = req.body;
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ error: "User Aleady Exist " });
+      return res.status(400).json({ error: "User Already Exists" });
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -32,13 +32,14 @@ router.post("/Register", async (req, res) => {
     res.json({
       status: true,
       authtoken,
-      user: { name: user.username, email: user, email ,id : user,id},
+      user: { name: user.username, email: user.email, id: user.id },
     });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("INTERNALE SERVER ERROR MANUAL");
+    res.status(500).send("INTERNAL SERVER ERROR");
   }
 });
+
 router.post(
   "/login",
   [

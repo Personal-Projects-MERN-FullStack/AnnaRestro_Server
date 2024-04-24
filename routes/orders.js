@@ -91,7 +91,7 @@ router.patch("/:orderId/update-status", async (req, res) => {
 router.get("/:customerId", async (req, res) => {
   try {
     const customerId = req.params.customerId;
-    const orders = await Order.find({ customer: customerId });
+    const orders = await Order.find({ customer: customerId }).sort({ createdAt: -1 }); // Sorting by createdAt in ascending order
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -101,12 +101,13 @@ router.get("/:customerId", async (req, res) => {
 // Route to fetch all orders
 router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find();
+    const orders = await Order.find().sort({ createdAt: -1 }); // Sorting by createdAt in ascending order
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // Route to add products to user's basket
 router.post("/:userId/add-to-basket", async (req, res) => {
