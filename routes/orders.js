@@ -145,4 +145,28 @@ router.get("/:userId/basket", async (req, res) => {
   }
 });
 
+
+
+router.get("/orderlog/:customerid", async (req, res) => {
+  try {
+    const customerId = req.params.customerid;
+
+    // Fetch orders associated with the customer ID
+    const customerOrders = await Order.find({ customer: customerId });
+
+    // Extract order IDs from the fetched orders
+    const orderIds = customerOrders.map(order => order._id);
+
+    // Fetch order change logs for the extracted order IDs
+    const orderChangeLogs = await OrderChangeStateLog.find({ orderId: { $in: orderIds } })
+      .sort({ createdAt: -1 }); // Sort by latest to oldest
+
+    res.json(orderChangeLogs);
+  } catch (error) {
+    console.error("Error fetching order change logs:", error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+
 module.exports = router;

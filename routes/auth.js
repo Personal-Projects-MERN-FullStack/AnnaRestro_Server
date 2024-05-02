@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const router = express.Router();
 const User = require("../models/Users");
 const Admin = require("../models/Admin");
+const Sadmin = require("../models/Sadmin");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const JWT_SECRET = "Anna$Restro$Project";
@@ -138,6 +139,9 @@ router.post("/admin/login", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+
+
 router.get("/admins", async (req, res) => {
   try {
     const admins = await Admin.find({}, { _id: 0, password: 0 }); // Exclude _id and password fields
@@ -148,3 +152,58 @@ router.get("/admins", async (req, res) => {
   }
 });
 module.exports = router;
+
+
+router.post("/sadmin/register", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    
+    // Check if admin with the given email already exists
+    let sadmin = await Sadmin.findOne({ email });
+    if (sadmin) {
+      return res.status(400).json({ error: "sAdmin already exists" });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create a new admin
+    sadmin = await Sadmin.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    res.json({ message: "sAdmin registered successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Admin Login
+router.post("/sadmin/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find admin by email
+    console.log(email)
+    let sadmin = await Sadmin.findOne({ email });
+    if (!sadmin) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, sadmin.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid credentials" });
+    }
+
+    // Return admin data if login successful
+    res.json({ username: sadmin.username, email: sadmin.email });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
