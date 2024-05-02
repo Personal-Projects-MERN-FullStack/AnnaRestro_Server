@@ -120,7 +120,7 @@ router.post("/admin/login", async (req, res) => {
     const { email, password } = req.body;
 
     // Find admin by email
-    console.log(email)
+    // console.log(email)
     let admin = await Admin.findOne({ email });
     if (!admin) {
       return res.status(400).json({ error: "Invalid credentials" });
@@ -188,8 +188,9 @@ router.post("/sadmin/login", async (req, res) => {
     const { email, password } = req.body;
 
     // Find admin by email
-    console.log(email)
+   
     let sadmin = await Sadmin.findOne({ email });
+    // console.log(email)
     if (!sadmin) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
@@ -199,7 +200,7 @@ router.post("/sadmin/login", async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-
+      
     // Return admin data if login successful
     res.json({ username: sadmin.username, email: sadmin.email });
   } catch (error) {

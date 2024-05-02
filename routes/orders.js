@@ -59,7 +59,7 @@ router.post("/place-order", async (req, res) => {
 
 // Route to update the status of an order
 router.patch("/:orderId/update-status", async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   try {
     const orderId = req.params.orderId;
     const { status, adminid } = req.body;
