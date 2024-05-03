@@ -59,7 +59,6 @@ router.post("/place-order", async (req, res) => {
 
 // Route to update the status of an order
 router.patch("/:orderId/update-status", async (req, res) => {
-  // console.log(req.body);
   try {
     const orderId = req.params.orderId;
     const { status, adminid } = req.body;
@@ -80,12 +79,23 @@ router.patch("/:orderId/update-status", async (req, res) => {
       adminid
     );
 
+    // If order is cancelled, add total order value to user wallet
+    if (status === "cancelled") {
+      const user = await User.findById(updatedOrder.customer);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      user.wallet.coins += updatedOrder.total; // Assuming total order value is stored in 'total' field
+      await user.save();
+    }
+
     res.json(updatedOrder);
   } catch (error) {
     console.error("Error updating order status:", error);
     res.status(400).json({ message: error.message });
   }
 });
+
 
 // Route to fetch orders by customer id
 router.get("/:customerId", async (req, res) => {
