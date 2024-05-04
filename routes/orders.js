@@ -3,7 +3,8 @@ const router = express.Router();
 const Order = require("../models/Orders");
 const User = require("../models/Users");
 const OrderChangeStateLog = require("../models/OrderChangeStateLog");
-
+const {jwtAuthMiddleware, generateToken} = require('../middleware/jwt');
+const { adminjwtAuthMiddleware } = require("../middleware/adminjwt");
 // Function to create a log entry for order state change
 async function createOrderStateChangeLog(
   orderId,
@@ -28,7 +29,7 @@ async function createOrderStateChangeLog(
 }
 
 // Route to place an order
-router.post("/place-order", async (req, res) => {
+router.post("/place-order",jwtAuthMiddleware, async (req, res) => {
   try {
     const { customer, products, total } = req.body;
     const user = await User.findById(customer);
@@ -58,7 +59,7 @@ router.post("/place-order", async (req, res) => {
 });
 
 // Route to update the status of an order
-router.patch("/:orderId/update-status", async (req, res) => {
+router.patch("/:orderId/update-status",adminjwtAuthMiddleware, async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const { status, adminid } = req.body;
@@ -98,7 +99,7 @@ router.patch("/:orderId/update-status", async (req, res) => {
 
 
 // Route to fetch orders by customer id
-router.get("/:customerId", async (req, res) => {
+router.get("/:customerId",jwtAuthMiddleware, async (req, res) => {
   try {
     const customerId = req.params.customerId;
     const orders = await Order.find({ customer: customerId }).sort({ createdAt: -1 }); // Sorting by createdAt in ascending order
@@ -109,7 +110,7 @@ router.get("/:customerId", async (req, res) => {
 });
 
 // Route to fetch all orders
-router.get("/", async (req, res) => {
+router.get("/",adminjwtAuthMiddleware, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 }); // Sorting by createdAt in ascending order
     res.json(orders);
@@ -120,7 +121,7 @@ router.get("/", async (req, res) => {
 
 
 // Route to add products to user's basket
-router.post("/:userId/add-to-basket", async (req, res) => {
+router.post("/:userId/add-to-basket",jwtAuthMiddleware, async (req, res) => {
   try {
     const userId = req.params.userId;
     const products = req.body;
@@ -140,7 +141,7 @@ router.post("/:userId/add-to-basket", async (req, res) => {
 });
 
 // Route to get user's basket
-router.get("/:userId/basket", async (req, res) => {
+router.get("/:userId/basket",jwtAuthMiddleware, async (req, res) => {
   try {
     const userId = req.params.userId;
     const user = await User.findById(userId);
@@ -157,7 +158,7 @@ router.get("/:userId/basket", async (req, res) => {
 
 
 
-router.get("/orderlog/:customerid", async (req, res) => {
+router.get("/orderlog/:customerid",jwtAuthMiddleware, async (req, res) => {
   try {
     const customerId = req.params.customerid;
 
