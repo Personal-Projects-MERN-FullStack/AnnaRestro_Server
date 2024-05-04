@@ -7,8 +7,10 @@ const Admin = require("../models/Admin");
 const Sadmin = require("../models/Sadmin");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-const JWT_SECRET = "Anna$Restro$Project";
+
 const jwt = require("jsonwebtoken");
+const  {jwtAuthMiddleware, generateToken} = require("../middleware/jwt")
+const  {adminjwtAuthMiddleware, admingenerateToken} = require("../middleware/adminjwt")
 
 router.post("/Register", async (req, res) => {
   try {
@@ -27,9 +29,12 @@ router.post("/Register", async (req, res) => {
     const data = {
       user: {
         id: user.id,
+        username:user.username,
+        email:user.email
       },
     };
-    const authtoken = jwt.sign(data, JWT_SECRET);
+    // const authtoken = jwt.sign(data, JWT_SECRET);
+    const authtoken = generateToken(data)
     res.json({
       status: true,
       authtoken,
@@ -72,9 +77,12 @@ router.post(
       const data = {
         user: {
           id: user.id,
+          username :user.username,
+          email:user.email
         },
       };
-      const authtoken = jwt.sign(data, JWT_SECRET);
+      // const authtoken = jwt.sign(data, JWT_SECRET);
+      const authtoken = generateToken(data)
       success = true;
       res.json({
         success,
@@ -131,9 +139,14 @@ router.post("/admin/login", async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-
+    data={
+      id:admin.id,
+      username: admin.username,
+      email: admin.email
+    }
+    const authtoken = admingenerateToken(data)
     // Return admin data if login successful
-    res.json({ username: admin.username, email: admin.email });
+    res.json({authtoken , username: admin.username, email: admin.email });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -142,7 +155,7 @@ router.post("/admin/login", async (req, res) => {
 
 
 
-router.get("/admins", async (req, res) => {
+router.get("/admins",adminjwtAuthMiddleware, async (req, res) => {
   try {
     const admins = await Admin.find({}, { _id: 0, password: 0 }); // Exclude _id and password fields
     res.json(admins);
@@ -200,9 +213,14 @@ router.post("/sadmin/login", async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-      
+    const data ={
+      id: sadmin.id,
+      username: sadmin.username,
+      email: sadmin.email
+    }
+    const authtoken = admingenerateToken(data)
     // Return admin data if login successful
-    res.json({ username: sadmin.username, email: sadmin.email });
+    res.json({authtoken, username: sadmin.username, email: sadmin.email });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");

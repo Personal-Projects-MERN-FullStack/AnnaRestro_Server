@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const userSchema = new Schema({
     username: {
@@ -16,11 +16,10 @@ const userSchema = new Schema({
         required: true
     },
     wallet: {
-        active:{
-            type:Boolean,
-            default : false
-        }
-        ,
+        active: {
+            type: Boolean,
+            default: false
+        },
         coins: {
             type: Number,
             default: 0
@@ -31,7 +30,11 @@ const userSchema = new Schema({
         },
         pin: {
             type: Number,
-            defualt : null
+            default: null
+        },
+        transactions: {
+            type: [Schema.Types.Mixed], // Array of mixed types, can contain any data
+            default: []
         }
     },
     basket: {
@@ -39,5 +42,7 @@ const userSchema = new Schema({
         default: []
     }
 });
-const User  = mongoose.model('user',userSchema);
-module.exports = User
+
+const User = mongoose.model('user', userSchema);
+
+module.exports = User;
